@@ -114,3 +114,14 @@ Classes: `akiec` / `bcc` / `bkl` / `df` / `mel` / `nv` / `vasc`
 - **Visualization:** matplotlib
 - **Dataset:** HAM10000 via HuggingFace Datasets
 - **Deployment:** Railway
+
+## Deployment
+
+The app is deployed on Railway. Run locally with:
+
+```bash
+pip install -r requirements.txt
+python app.py
+```
+
+Or connect this repo to Railway for automatic deployment via the Procfile.
