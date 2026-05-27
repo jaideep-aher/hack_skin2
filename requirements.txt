@@ -1,0 +1,15 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+gradio==4.36.1
+torch==2.3.1+cpu
+torchvision==0.18.1+cpu
+timm==1.0.9
+transformers==4.44.2
+safetensors==0.4.5
+Pillow==10.4.0
+numpy==1.26.4
+matplotlib==3.9.2
+pandas==2.2.2
+tqdm==4.66.5
+datasets==2.21.0
+accelerate==0.34.2
+jinja2==3.1.2
