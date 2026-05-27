@@ -1,5 +1,3 @@
-
-
 import os
 import numpy as np
 import gradio as gr
@@ -34,12 +32,10 @@ SIMULATED_WITH_AUG = {
 }
 
 def hf_to_probs(result: list) -> np.ndarray:
-    
     prob_map = {normalize_label(item["label"]): item["score"] for item in result}
     return np.array([prob_map.get(cls, 0.0) for cls in CLASS_NAMES])
 
 def run_inference(img: Image.Image, n_aug: int = 10):
-    
     orig_result = classifier(img.convert("RGB"))
     orig_probs = hf_to_probs(orig_result)
 
@@ -76,7 +72,11 @@ def analyze(image: Image.Image):
     orig_top = CLASS_NAMES[int(np.argmax(orig_probs))]
     agreement = "Agrees with original" if orig_top == top_class else "Differs from original prediction"
 
-    result_md = f
+    result_md = (
+        f"## {emoji} {top_class}\n\n"
+        f"**Confidence:** {top_conf:.1%}  |  **Risk:** {risk}  |  Ensemble: {agreement}\n\n"
+        "### Top 3 Predictions"
+    )
     top3 = np.argsort(aug_probs)[::-1][:3]
     for i, idx in enumerate(top3, 1):
         result_md += f"\n{i}. {CLASS_NAMES[idx]} - **{aug_probs[idx]:.1%}**"
@@ -85,9 +85,7 @@ def analyze(image: Image.Image):
     return aug_grid, conf_chart, fairness_chart, result_md
 
 def make_sample(tone_key: str) -> Image.Image:
-    
     from augmentations import SkinToneShift
-    import numpy as np
 
     w, h = 450, 450
     arr = np.full((h, w, 3), 200, dtype=np.uint8)
@@ -105,9 +103,21 @@ def make_sample(tone_key: str) -> Image.Image:
     img = Image.fromarray(arr)
     return SkinToneShift(tone=tone_key)(img)
 
-DESCRIPTION = 
+DESCRIPTION = (
+    "# Skin Lesion Robustness Analyzer\n\n"
+    "Upload a dermoscopy image to classify skin lesions using a Vision Transformer "
+    "fine-tuned on HAM10000. The system applies a 10-view augmented ensemble and "
+    "visualizes fairness across Fitzpatrick skin tone types."
+)
 
-TECH_NOTES = 
+TECH_NOTES = (
+    "### Technical Details\n\n"
+    "**Model:** ViT-base-patch16-224 pre-trained on ImageNet-21k, fine-tuned on HAM10000 "
+    "(via `Anwarkh1/Skin_Cancer-Image_Classification`).\n\n"
+    "**Augmentation Pipeline:** SkinToneShift, HairArtifact, VignetteEffect, GaussianNoise, FocusBlur.\n\n"
+    "**Ensemble:** 10 augmented views averaged at the logit level.\n\n"
+    "**Fairness:** Simulated accuracy curves show the 37pp gap (Type I vs VI) closes to ~15pp with augmentation."
+)
 
 with gr.Blocks(
     title="Skin Lesion Robustness Analyzer",
@@ -144,7 +154,7 @@ with gr.Blocks(
 
     gr.Markdown(TECH_NOTES)
 
-    gr.Markdown()
+    gr.Markdown("*AIPI 540 Module 1 Hackathon | Duke University*")
 
     def load_sample(name):
         if not name:
